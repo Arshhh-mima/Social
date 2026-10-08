@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<title>SocialX</title>
+<style>
+:root{
+  --bg:#f6f7fb;--card:#fff;--text:#111827;--muted:#667085;
+  --line:#e6e8ef;--primary:#635bff;--primary2:#8b5cf6;
+  --danger:#ef4444;--shadow:0 10px 35px rgba(16,24,40,.08)
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+.hidden{display:none!important}
+.screen{min-height:100vh}
+.auth{display:flex;align-items:center;justify-content:center;padding:24px;background:linear-gradient(135deg,#eef2ff,#faf5ff)}
+.auth-card{width:min(430px,100%);background:white;border:1px solid var(--line);border-radius:28px;padding:30px;box-shadow:var(--shadow)}
+.logo{font-size:32px;font-weight:900;letter-spacing:-1.5px;margin-bottom:6px}
+.logo span{background:linear-gradient(90deg,var(--primary),var(--primary2));color:transparent;background-clip:text}
+.subtitle{color:var(--muted);margin:0 0 24px}
+.tabs{display:flex;background:#f2f4f7;padding:4px;border-radius:14px;margin-bottom:20px}
+.tabs button{flex:1;border:0;background:transparent;padding:10px;border-radius:10px;color:var(--muted)}
+.tabs button.active{background:#fff;color:var(--text);box-shadow:0 2px 8px #0000000d}
+.field{margin:12px 0}
+.field label{display:block;font-size:13px;font-weight:700;margin-bottom:7px}
+.field input,.field textarea,.searchbox{width:100%;border:1px solid var(--line);border-radius:13px;padding:12px 14px;outline:0;background:#fff}
+.field input:focus,.field textarea:focus,.searchbox:focus{border-color:var(--primary);box-shadow:0 0 0 3px #635bff18}
+.primary{width:100%;border:0;border-radius:13px;padding:13px 16px;color:white;font-weight:800;background:linear-gradient(90deg,var(--primary),var(--primary2))}
+.ghost{border:1px solid var(--line);background:white;border-radius:11px;padding:9px 12px}
+.error{color:#b42318;background:#fef3f2;border:1px solid #fecdca;border-radius:12px;padding:10px;margin:12px 0;font-size:13px}
+.app{min-height:100vh}
+.topbar{height:64px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 max(18px,calc((100vw - 1180px)/2));position:sticky;top:0;z-index:20}
+.brand{font-size:23px;font-weight:900}
+.brand span{background:linear-gradient(90deg,var(--primary),var(--primary2));color:transparent;background-clip:text}
+.top-actions{display:flex;gap:8px;align-items:center}
+.iconbtn{position:relative;border:0;background:transparent;border-radius:12px;padding:9px;font-size:20px}
+.badge{position:absolute;right:0;top:0;min-width:17px;height:17px;border-radius:9px;background:var(--danger);color:#fff;font-size:10px;display:flex;align-items:center;justify-content:center;padding:0 4px;font-weight:800}
+.layout{max-width:1180px;margin:auto;display:grid;grid-template-columns:220px minmax(0,650px) 270px;gap:22px;padding:22px 18px}
+.sidebar{position:sticky;top:86px;height:max-content}
+.nav{display:grid;gap:6px}
+.nav button{border:0;background:transparent;text-align:left;padding:12px 14px;border-radius:13px;color:#344054;font-weight:700}
+.nav button.active,.nav button:hover{background:#ecebff;color:var(--primary)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:0 3px 16px #10182808}
+.feed{display:grid;gap:16px}
+.storybar{display:flex;gap:12px;overflow:auto;padding:14px}
+.story{min-width:66px;text-align:center;font-size:11px;color:var(--muted)}
+.avatar{width:48px;height:48px;border-radius:50%;object-fit:cover;background:linear-gradient(135deg,#ddd6fe,#c7d2fe);display:inline-flex;align-items:center;justify-content:center;font-weight:800}
+.story .avatar{width:58px;height:58px;border:3px solid #8b5cf6;padding:2px}
+.post-head{display:flex;align-items:center;gap:10px;padding:14px}
+.userline{flex:1}
+.userline b{display:block;font-size:14px}
+.userline small{color:var(--muted)}
+.post-media{width:100%;max-height:680px;object-fit:cover;background:#111}
+.post-body{padding:12px 14px}
+.post-actions{display:flex;gap:3px;padding:5px 8px}
+.action{border:0;background:transparent;padding:9px 8px;color:#344054;border-radius:10px}
+.action:hover{background:#f2f4f7}
+.action.liked{color:#ef4444}
+.caption{line-height:1.45;margin:4px 0}
+.comment-row{display:flex;gap:8px;padding:10px 14px;border-top:1px solid var(--line)}
+.comment-row input{flex:1;border:0;outline:0}
+.right-card{padding:15px}
+.profile-mini{display:flex;align-items:center;gap:10px}
+.page{display:none}
+.page.active{display:block}
+.page-title{font-size:26px;margin:4px 0 18px}
+.search-area{margin-bottom:16px}
+.results{display:grid;gap:8px}
+.user-result{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--line);border-radius:15px;background:#fff}
+.user-result .spacer{flex:1}
+.messages{display:grid;grid-template-columns:250px 1fr;height:600px;overflow:hidden}
+.conversations{border-right:1px solid var(--line);overflow:auto}
+.conversation{display:flex;gap:10px;padding:12px;cursor:pointer}
+.conversation:hover,.conversation.active{background:#f4f3ff}
+.chat{display:flex;flex-direction:column;min-width:0}
+.chat-head{padding:13px;border-bottom:1px solid var(--line);font-weight:800}
+.chat-body{flex:1;overflow:auto;padding:15px;display:flex;flex-direction:column;gap:8px}
+.bubble{max-width:75%;padding:10px 12px;border-radius:16px;background:#f2f4f7;align-self:flex-start}
+.bubble.mine{background:#635bff;color:#fff;align-self:flex-end}
+.typing{height:24px;padding:0 15px;color:var(--muted);font-size:12px}
+.composer{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line)}
+.composer input{flex:1;border:1px solid var(--line);border-radius:12px;padding:11px}
+.composer button{border:0;background:var(--primary);color:white;border-radius:12px;padding:0 18px}
+.reels{display:grid;gap:16px}
+.reel{height:min(76vh,720px);background:#101114;border-radius:20px;overflow:hidden;position:relative}
+.reel video{width:100%;height:100%;object-fit:cover}
+.reel-info{position:absolute;left:15px;bottom:15px;color:#fff;right:70px;text-shadow:0 1px 5px #000}
+.reel-tools{position:absolute;right:12px;bottom:20px;display:grid;gap:8px}
+.reel-tools button{border:0;background:#ffffff20;color:#fff;border-radius:50%;width:45px;height:45px}
+.profile-cover{height:150px;background:linear-gradient(135deg,#635bff,#c084fc);border-radius:20px 20px 0 0}
+.profile-main{padding:0 20px 20px}
+.profile-main .avatar{margin-top:-35px;width:82px;height:82px;border:4px solid white}
+.profile-stats{display:flex;gap:25px;margin:15px 0}
+.profile-stats b{display:block}.profile-stats span{font-size:12px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.grid img,.grid video{width:100%;aspect-ratio:1;object-fit:cover;background:#ddd}
+.notification{padding:13px 15px;border-bottom:1px solid var(--line);display:flex;gap:10px}
+.notification.unread{background:#f5f3ff}
+.modal{position:fixed;inset:0;background:#0008;display:flex;align-items:center;justify-content:center;padding:18px;z-index:100}
+.modal-card{background:#fff;border-radius:22px;width:min(520px,100%);padding:20px}
+.close{float:right;border:0;background:#f2f4f7;border-radius:50%;width:34px;height:34px}
+.drop{display:grid;gap:9px;margin-top:15px}
+.drop button{padding:14px;border:1px solid var(--line);background:#fff;border-radius:13px;text-align:left;font-weight:700}
+.empty{padding:40px 15px;text-align:center;color:var(--muted)}
+@media(max-width:900px){
+ .layout{grid-template-columns:70px minmax(0,1fr);max-width:760px}
+ .sidebar .label{display:none}.nav button{text-align:center;font-size:21px}.nav button .label{display:none}
+ .right-card{display:none}
+}
+@media(max-width:650px){
+ .topbar{padding:0 10px}.layout{display:block;padding:10px 8px 78px}
+ .sidebar{position:fixed;bottom:0;left:0;right:0;top:auto;background:#fff;border-top:1px solid var(--line);z-index:50;height:62px}
+ .nav{display:flex;justify-content:space-around}.nav button{padding:8px 10px;font-size:20px}
+ .messages{grid-template-columns:1fr;height:calc(100vh - 150px)}.conversations{display:none}
+ .page-title{font-size:22px}.post-media{max-height:70vh}.storybar{border-radius:16px}
+}
+</style>
+</head>
+<body>
+
+<div id="authScreen" class="screen auth">
+  <div class="auth-card">
+    <div class="logo"><span>SocialX</span></div>
+    <p class="subtitle">Connect, share and message in real time.</p>
+    <div class="tabs">
+      <button id="loginTab" class="active" onclick="showAuth('login')">Login</button>
+      <button id="signupTab" onclick="showAuth('signup')">Create Account</button>
+    </div>
+    <div id="authError" class="error hidden"></div>
+    <form id="loginForm">
+      <div class="field"><label>Username</label><input id="loginUsername" required autocomplete="username"></div>
+      <div class="field"><label>Password</label><input id="loginPassword" type="password" required autocomplete="current-password"></div>
+      <button class="primary">Login</button>
+    </form>
+    <form id="signupForm" class="hidden">
+      <div class="field"><label>Username</label><input id="signupUsername" required minlength="3" maxlength="24"></div>
+      <div class="field"><label>Name</label><input id="signupName" required maxlength="50"></div>
+      <div class="field"><label>Password</label><input id="signupPassword" type="password" required minlength="6" autocomplete="new-password"></div>
+      <div class="field"><label>Bio</label><textarea id="signupBio" rows="3" maxlength="160"></textarea></div>
+      <button class="primary">Create Account</button>
+    </form>
+    <p style="font-size:12px;color:#98a2b3;margin-top:18px">
+      Backend configuration is required for real cross-device users and realtime sync.
+    </p>
+  </div>
+</div>
+
+<div id="app" class="app hidden">
+<header class="topbar">
+  <div class="brand"><span>SocialX</span></div>
+  <div class="top-actions">
+    <button class="iconbtn" onclick="openCreate()">＋</button>
+    <button class="iconbtn" onclick="openPage('notifications')">♡<span id="notifBadge" class="badge hidden">0</span></button>
+    <button class="iconbtn" onclick="openPage('messages')">✉<span id="msgBadge" class="badge hidden">0</span></button>
+    <button class="iconbtn" onclick="openPage('profile')">◉</button>
+  </div>
+</header>
+
+<div class="layout">
+<aside class="sidebar">
+  <nav class="nav">
+    <button class="active" data-page="home" onclick="openPage('home')">⌂ <span class="label">Home</span></button>
+    <button data-page="search" onclick="openPage('search')">⌕ <span class="label">Search</span></button>
+    <button data-page="explore" onclick="openPage('explore')">◈ <span class="label">Explore</span></button>
+    <button data-page="reels" onclick="openPage('reels')">▶ <span class="label">Reels</span></button>
+    <button data-page="messages" onclick="openPage('messages')">✉ <span class="label">Messages</span></button>
+    <button data-page="notifications" onclick="openPage('notifications')">♡ <span class="label">Notifications</span></button>
+    <button data-page="profile" onclick="openPage('profile')">◉ <span class="label">Profile</span></button>
+  </nav>
+</aside>
+
+<main>
+<section id="home" class="page active">
+  <div class="card storybar" id="stories"></div>
+  <div class="feed" id="homeFeed" style="margin-top:16px"></div>
+</section>
+
+<section id="search" class="page">
+  <h1 class="page-title">Search</h1>
+  <div class="search-area"><input id="searchInput" class="searchbox" placeholder="Search username or name..." oninput="searchUsers()"></div>
+  <div id="searchResults" class="results"></div>
+</section>
+
+<section id="explore" class="page">
+  <h1 class="page-title">Explore</h1>
+  <div id="exploreGrid" class="grid card" style="overflow:hidden"></div>
+</section>
+
+<section id="reels" class="page">
+  <h1 class="page-title">Reels</h1>
+  <div id="reelsFeed" class="reels"></div>
+</section>
+
+<section id="messages" class="page">
+  <h1 class="page-title">Messages</h1>
+  <div class="card messages">
+    <div class="conversations" id="conversations"></div>
+    <div class="chat">
+      <div id="chatHead" class="chat-head">Select a conversation</div>
+      <div id="chatBody" class="chat-body"><div class="empty">Choose a user to start messaging.</div></div>
+      <div id="typing" class="typing"></div>
+      <div class="composer"><input id="messageInput" placeholder="Message..." disabled oninput="typingChanged()"><button onclick="sendMessage()">Send</button></div>
+    </div>
+  </div>
+</section>
+
+<section id="notifications" class="page">
+  <h1 class="page-title">Notifications</h1>
+  <div id="notificationsList" class="card"></div>
+</section>
+
+<section id="profile" class="page">
+  <div class="card">
+    <div class="profile-cover"></div>
+    <div class="profile-main">
+      <div id="profileAvatar" class="avatar">U</div>
+      <h2 id="profileName" style="margin:10px 0 2px"></h2>
+      <div id="profileUsername" style="color:var(--muted)"></div>
+      <p id="profileBio"></p>
+      <div class="profile-stats">
+        <div><b id="postCount">0</b><span>Posts</span></div>
+        <div><b id="followersCount">0</b><span>Followers</span></div>
+        <div><b id="followingCount">0</b><span>Following</span></div>
+      </div>
+      <button class="ghost" onclick="logout()">Log out</button>
+    </div>
+  </div>
+  <h3>Your posts</h3>
+  <div id="profileGrid" class="grid"></div>
+</section>
+</main>
+
+<aside class="right-card card">
+  <div class="profile-mini">
+    <div id="miniAvatar" class="avatar">U</div>
+    <div><b id="miniName"></b><small id="miniUsername"></small></div>
+  </div>
+  <hr style="border:0;border-top:1px solid var(--line);margin:16px 0">
+  <b>Suggested for you</b>
+  <div id="suggestions" style="margin-top:12px"></div>
+</aside>
+</div>
+</div>
+
+<div id="createModal" class="modal hidden">
+  <div class="modal-card">
+    <button class="close" onclick="closeCreate()">×</button>
+    <h2>Create</h2>
+    <div class="drop">
+      <button onclick="createPost()">＋ Photo / Video Post</button>
+      <button onclick="createReel()">▶ Reel</button>
+      <button onclick="createStory()">◉ Story</button>
+    </div>
+    <input id="mediaInput" class="hidden" type="file" accept="image/*,video/*" onchange="handleMedia(this.files[0])">
+  </div>
+</div>
+
+<script type="module">
+/*
+  SOCIALX BACKEND HOOK
+  --------------------
+  This UI is deliberately separated from the backend.
+
+  To make REAL cross-device users, realtime messages, media uploads,
+  likes, comments, notifications, etc. work, connect this file to
+  your chosen backend (for example Firebase Realtime Database +
+  Authentication + Storage, Supabase, or your own API).
+
+  Do NOT put plain-text passwords in a database.
+
+  Replace the functions in the "BACKEND ADAPTER" section below
+  with your actual backend implementation.
+*/
+
+const state = {
+  user: null,
+  users: [],
+  posts: [],
+  reels: [],
+  messages: [],
+  notifications: [],
+  stories: [],
+  selectedChat: null,
+  pendingMedia: null
+};
+
+/* ---------- BACKEND ADAPTER ---------- */
+
+const backend = {
+  async login(username,password){
+    const users = JSON.parse(localStorage.getItem("socialx_demo_users") || "[]");
+    const user = users.find(u => u.username === username && u.password === password);
+    if(!user) throw new Error("Invalid username or password.");
+    return user;
+  },
+
+  async signup(data){
+    const users = JSON.parse(localStorage.getItem("socialx_demo_users") || "[]");
+    if(users.some(u => u.username.toLowerCase() === data.username.toLowerCase()))
+      throw new Error("Username is already taken.");
+    const user = {
+      id: crypto.randomUUID(), username:data.username, name:data.name,
+      bio:data.bio || "", avatar:"", followers:[], following:[], createdAt:Date.now()
+    };
+    /*
+      DEMO ONLY:
+      Password storage here is intentionally NOT suitable for production.
+      Replace this adapter with a real authentication provider before
+      deploying a public app.
+    */
+    users.push({...user,password:data.password});
+    localStorage.setItem("socialx_demo_users",JSON.stringify(users));
+    return user;
+  },
+
+  async load(){
+    const users=JSON.parse(localStorage.getItem("socialx_demo_users")||"[]");
+    const posts=JSON.parse(localStorage.getItem("socialx_demo_posts")||"[]");
+    const reels=JSON.parse(localStorage.getItem("socialx_demo_reels")||"[]");
+    const msgs=JSON.parse(localStorage.getItem("socialx_demo_messages")||"[]");
+    state.users=users;
+    state.posts=posts;
+    state.reels=reels;
+    state.messages=msgs;
+  },
+
+  async createPost(post){
+    state.posts.unshift(post);
+    localStorage.setItem("socialx_demo_posts",JSON.stringify(state.posts));
+  },
+
+  async createReel(reel){
+    state.reels.unshift(reel);
+    localStorage.setItem("socialx_demo_reels",JSON.stringify(state.reels));
+  },
+
+  async sendMessage(msg){
+    state.messages.push(msg);
+    localStorage.setItem("socialx_demo_messages",JSON.stringify(state.messages));
+  }
+};
+
+/* ---------- AUTH ---------- */
+
+window.showAuth = function(mode){
+  document.getElementById("loginTab").classList.toggle("active",mode==="login");
+  document.getElementById("signupTab").classList.toggle("active",mode==="signup");
+  document.getElementById("loginForm").classList.toggle("hidden",mode!=="login");
+  document.getElementById("signupForm").classList.toggle("hidden",mode!=="signup");
+  hideError();
+};
+
+function showError(msg){
+  const e=document.getElementById("authError");e.textContent=msg;e.classList.remove("hidden");
+}
+function hideError(){document.getElementById("authError").classList.add("hidden")}
+
+document.getElementById("loginForm").addEventListener("submit",async e=>{
+  e.preventDefault();hideError();
+  try{
+    const user=await backend.login(
+      document.getElementById("loginUsername").value.trim().toLowerCase(),
+      document.getElementById("loginPassword").value
+    );
+    state.user=user;
+    localStorage.setItem("socialx_session",user.id);
+    await enterApp();
+  }catch(err){showError(err.message)}
+});
+
+document.getElementById("signupForm").addEventListener("submit",async e=>{
+  e.preventDefault();hideError();
+  try{
+    const user=await backend.signup({
+      username:document.getElementById("signupUsername").value.trim().toLowerCase(),
+      name:document.getElementById("signupName").value.trim(),
+      password:document.getElementById("signupPassword").value,
+      bio:document.getElementById("signupBio").value.trim()
+    });
+    state.user=user;
+    localStorage.setItem("socialx_session",user.id);
+    await backend.load();
+    await enterApp();
+  }catch(err){showError(err.message)}
+});
+
+window.logout=function(){
+  localStorage.removeItem("socialx_session");
+  state.user=null;
+  document.getElementById("app").classList.add("hidden");
+  document.getElementById("authScreen").classList.remove("hidden");
+};
+
+/* ---------- APP ---------- */
+
+async function enterApp(){
+  await backend.load();
+  document.getElementById("authScreen").classList.add("hidden");
+  document.getElementById("app").classList.remove("hidden");
+  renderAll();
+}
+
+window.openPage=function(page){
+  document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
+  document.getElementById(page).classList.add("active");
+  document.querySelectorAll(".nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===page));
+  if(page==="messages") renderMessages();
+  if(page==="notifications") renderNotifications();
+  if(page==="profile") renderProfile();
+};
+
+function renderAll(){
+  renderProfileMini();
+  renderStories();
+  renderFeed();
+  renderReels();
+  renderSuggestions();
+  renderExplore();
+  renderMessages();
+  renderNotifications();
+  renderProfile();
+}
+
+/* ---------- STORIES ---------- */
+
+function renderStories(){
+  const el=document.getElementById("stories");
+  el.innerHTML=`<div class="story"><div class="avatar">＋</div><div>Your story</div></div>`;
+  state.stories.forEach(s=>{
+    el.innerHTML+=`<div class="story"><img class="avatar" src="${s.avatar||avatarFor(s.username)}"><div>${esc(s.username)}</div></div>`;
+  });
+}
+
+/* ---------- FEED ---------- */
+
+function renderFeed(){
+  const el=document.getElementById("homeFeed");
+  if(!state.posts.length){
+    el.innerHTML=`<div class="card empty"><h3>No posts yet</h3><p>Create your first post using +.</p></div>`;
+    return;
+  }
+  el.innerHTML=state.posts.map(postCard).join("");
+}
+
+function postCard(p){
+  const liked=(p.likes||[]).includes(state.user.id);
+  return `<article class="card">
+    <div class="post-head">
+      <img class="avatar" src="${p.avatar||avatarFor(p.username)}">
+      <div class="userline"><b>@${esc(p.username)}</b><small>${timeAgo(p.createdAt)}</small></div>
+      <button class="iconbtn">•••</button>
+    </div>
+    ${p.media ? `<img class="post-media" src="${p.media}" alt="Post">` : ""}
+    <div class="post-actions">
+      <button class="action ${liked?'liked':''}" onclick="toggleLike('${p.id}')">${liked?'♥':'♡'} ${p.likes?.length||0}</button>
+      <button class="action" onclick="focusComment('${p.id}')">◯ ${p.comments?.length||0}</button>
+      <button class="action" onclick="repost('${p.id}')">↻</button>
+      <button class="action" onclick="sharePost('${p.id}')">⌁</button>
+      <button class="action" style="margin-left:auto">⌑</button>
+    </div>
+    <div class="post-body"><b>@${esc(p.username)}</b> <span class="caption">${esc(p.caption||"")}</span></div>
+    <div class="comment-row"><input id="comment-${p.id}" placeholder="Add a comment..." onkeydown="if(event.key==='Enter')addComment('${p.id}')"><button class="ghost" onclick="addComment('${p.id}')">Post</button></div>
+  </article>`;
+}
+
+window.toggleLike=async function(id){
+  const p=state.posts.find(x=>x.id===id);if(!p)return;
+  p.likes=p.likes||[];
+  const i=p.likes.indexOf(state.user.id);
+  i>=0?p.likes.splice(i,1):p.likes.push(state.user.id);
+  localStorage.setItem("socialx_demo_posts",JSON.stringify(state.posts));
+  renderFeed();
+};
+
+window.addComment=async function(id){
+  const input=document.getElementById("comment-"+id);const text=input.value.trim();if(!text)return;
+  const p=state.posts.find(x=>x.id===id);p.comments=p.comments||[];
+  p.comments.push({id:crypto.randomUUID(),userId:state.user.id,username:state.user.username,text,createdAt:Date.now(),replies:[]});
+  localStorage.setItem("socialx_demo_posts",JSON.stringify(state.posts));input.value="";renderFeed();
+};
+
+window.repost=function(id){
+  const p=state.posts.find(x=>x.id===id);if(!p)return;
+  const copy={...p,id:crypto.randomUUID(),username:state.user.username,userId:state.user.id,createdAt:Date.now(),repostedFrom:p.id};
+  state.posts.unshift(copy);localStorage.setItem("socialx_demo_posts",JSON.stringify(state.posts));renderFeed();
+};
+
+window.sharePost=function(id){
+  const p=state.posts.find(x=>x.id===id);
+  alert(p ? "Select a user from Messages to share this post in a real backend implementation." : "");
+};
+window.focusComment=function(id){setTimeout(()=>document.getElementById("comment-"+id)?.focus(),50)};
+
+/* ---------- REELS ---------- */
+
+function renderReels(){
+  const el=document.getElementById("reelsFeed");
+  if(!state.reels.length){el.innerHTML=`<div class="card empty"><h3>No reels yet</h3><p>Upload a reel using +.</p></div>`;return}
+  el.innerHTML=state.reels.map(r=>`
+  <article class="reel">
+    <video src="${r.media}" controls loop playsinline></video>
+    <div class="reel-info"><b>@${esc(r.username)}</b><div>${esc(r.caption||"")}</div></div>
+    <div class="reel-tools">
+      <button>♡</button><button>◯</button><button>↻</button><button>⌁</button>
+    </div>
+  </article>`).join("");
+}
+
+/* ---------- SEARCH ---------- */
+
+window.searchUsers=function(){
+  const q=document.getElementById("searchInput").value.trim().toLowerCase();
+  const el=document.getElementById("searchResults");
+  if(!q){el.innerHTML="";return}
+  const users=state.users.filter(u=>u.username.includes(q)||u.name.toLowerCase().includes(q));
+  el.innerHTML=users.map(u=>`
+    <div class="user-result">
+      <img class="avatar" src="${u.avatar||avatarFor(u.username)}">
+      <div><b>${esc(u.name)}</b><div style="color:var(--muted)">@${esc(u.username)}</div></div>
+      <div class="spacer"></div>
+      <button class="ghost" onclick="startChat('${u.id}')">Message</button>
+    </div>`).join("") || `<div class="empty">No users found.</div>`;
+};
+
+/* ---------- MESSAGES ---------- */
+
+function renderMessages(){
+  const list=document.getElementById("conversations");
+  const users=state.users.filter(u=>u.id!==state.user.id);
+  list.innerHTML=users.map(u=>`<div class="conversation ${state.selectedChat===u.id?'active':''}" onclick="startChat('${u.id}')">
+    <img class="avatar" src="${u.avatar||avatarFor(u.username)}"><div><b>${esc(u.name)}</b><div style="font-size:12px;color:var(--muted)">@${esc(u.username)}</div></div>
+  </div>`).join("") || `<div class="empty">No other users yet.</div>`;
+  if(state.selectedChat) renderChat();
+}
+
+window.startChat=function(id){
+  state.selectedChat=id;renderMessages();
+  document.getElementById("messageInput").disabled=false;
+};
+
+function renderChat(){
+  const u=state.users.find(x=>x.id===state.selectedChat);if(!u)return;
+  document.getElementById("chatHead").textContent="@"+u.username;
+  const msgs=state.messages.filter(m=>(m.from===state.user.id&&m.to===u.id)||(m.from===u.id&&m.to===state.user.id));
+  const body=document.getElementById("chatBody");
+  body.innerHTML=msgs.map(m=>`<div class="bubble ${m.from===state.user.id?'mine':''}">${esc(m.text)}<small style="display:block;opacity:.65;font-size:10px">${timeAgo(m.createdAt)}</small></div>`).join("") || `<div class="empty">No messages yet.</div>`;
+  body.scrollTop=body.scrollHeight;
+}
+
+let typingTimer;
+window.typingChanged=function(){
+  const target=document.getElementById("typing");
+  if(!state.selectedChat)return;
+  target.textContent="Typing...";
+  clearTimeout(typingTimer);typingTimer=setTimeout(()=>target.textContent="",900);
+  /*
+    Replace this with a realtime backend presence/typing listener.
+    Do not store typing state permanently in production.
+  */
+};
+
+window.sendMessage=async function(){
+  const input=document.getElementById("messageInput");
+  const text=input.value.trim();if(!text||!state.selectedChat)return;
+  await backend.sendMessage({id:crypto.randomUUID(),from:state.user.id,to:state.selectedChat,text,createdAt:Date.now(),read:false});
+  input.value="";document.getElementById("typing").textContent="";renderChat();
+};
+
+/* ---------- NOTIFICATIONS ---------- */
+
+function renderNotifications(){
+  const el=document.getElementById("notificationsList");
+  const ns=state.notifications;
+  el.innerHTML=ns.length?ns.map(n=>`<div class="notification ${n.unread?'unread':''}"><div class="avatar">!</div><div>${esc(n.text)}<div style="font-size:11px;color:var(--muted)">${timeAgo(n.createdAt)}</div></div></div>`).join(""):`<div class="empty">No notifications yet.</div>`;
+}
+
+/* ---------- PROFILE ---------- */
+
+function renderProfileMini(){
+  const u=state.user;if(!u)return;
+  document.getElementById("miniName").textContent=u.name;
+  document.getElementById("miniUsername").textContent="@"+u.username;
+  document.getElementById("miniAvatar").outerHTML=`<img id="miniAvatar" class="avatar" src="${u.avatar||avatarFor(u.username)}">`;
+}
+function renderProfile(){
+  const u=state.user;if(!u)return;
+  document.getElementById("profileAvatar").style.backgroundImage=`url('${u.avatar||avatarFor(u.username)}')`;
+  document.getElementById("profileAvatar").style.backgroundSize="cover";
+  document.getElementById("profileAvatar").textContent="";
+  document.getElementById("profileName").textContent=u.name;
+  document.getElementById("profileUsername").textContent="@"+u.username;
+  document.getElementById("profileBio").textContent=u.bio||"";
+  const mine=state.posts.filter(p=>p.userId===u.id);
+  document.getElementById("postCount").textContent=mine.length;
+  document.getElementById("followersCount").textContent=(u.followers||[]).length;
+  document.getElementById("followingCount").textContent=(u.following||[]).length;
+  document.getElementById("profileGrid").innerHTML=mine.map(p=>p.media?`<img src="${p.media}">`:"").join("");
+}
+
+/* ---------- SUGGESTIONS / EXPLORE ---------- */
+
+function renderSuggestions(){
+  const el=document.getElementById("suggestions");
+  const users=state.users.filter(u=>u.id!==state.user.id).slice(0,5);
+  el.innerHTML=users.map(u=>`<div style="display:flex;align-items:center;gap:8px;margin:12px 0"><img class="avatar" style="width:34px;height:34px" src="${u.avatar||avatarFor(u.username)}"><div style="flex:1;font-size:12px"><b>@${esc(u.username)}</b><br><span style="color:var(--muted)">${esc(u.name)}</span></div><button class="ghost" onclick="startChat('${u.id}')">View</button></div>`).join("");
+}
+function renderExplore(){
+  const el=document.getElementById("exploreGrid");
+  const media=[...state.posts,...state.reels].filter(x=>x.media);
+  el.innerHTML=media.map(x=>x.media.endsWith(".mp4")||x.media.startsWith("data:video")?`<video src="${x.media}" muted></video>`:`<img src="${x.media}">`).join("") || `<div class="empty">Explore will show real uploaded content.</div>`;
+}
+
+/* ---------- CREATE ---------- */
+
+window.openCreate=function(){document.getElementById("createModal").classList.remove("hidden")};
+window.closeCreate=function(){document.getElementById("createModal").classList.add("hidden")};
+
+window.createPost=function(){
+  state.pendingMedia="post";document.getElementById("mediaInput").click();
+};
+window.createReel=function(){
+  state.pendingMedia="reel";document.getElementById("mediaInput").accept="video/*";document.getElementById("mediaInput").click();
+};
+window.createStory=function(){
+  state.pendingMedia="story";document.getElementById("mediaInput").accept="image/*,video/*";document.getElementById("mediaInput").click();
+};
+
+window.handleMedia=function(file){
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=async()=>{
+    const media=reader.result;
+    if(state.pendingMedia==="post"){
+      const caption=prompt("Caption:");
+      await backend.createPost({id:crypto.randomUUID(),userId:state.user.id,username:state.user.username,avatar:state.user.avatar||"",media,caption:caption||"",likes:[],comments:[],createdAt:Date.now()});
+      closeCreate();renderAll();
+    }else if(state.pendingMedia==="reel"){
+      const caption=prompt("Reel caption:");
+      await backend.createReel({id:crypto.randomUUID(),userId:state.user.id,username:state.user.username,media,caption:caption||"",createdAt:Date.now()});
+      closeCreate();renderAll();
+    }else{
+      state.stories.unshift({id:crypto.randomUUID(),userId:state.user.id,username:state.user.username,avatar:state.user.avatar||"",media,createdAt:Date.now()});
+      closeCreate();renderStories();
+    }
+    document.getElementById("mediaInput").value="";
+  };
+  reader.readAsDataURL(file);
+};
+
+/* ---------- HELPERS ---------- */
+
+function avatarFor(username){
+  return "https://ui-avatars.com/api/?name="+encodeURIComponent(username||"User")+"&background=635bff&color=fff";
+}
+function esc(v){
+  return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function timeAgo(t){
+  const s=Math.max(1,Math.floor((Date.now()-t)/1000));
+  if(s<60)return s+"s";
+  if(s<3600)return Math.floor(s/60)+"m";
+  if(s<86400)return Math.floor(s/3600)+"h";
+  return Math.floor(s/86400)+"d";
+}
+
+/* ---------- STARTUP ---------- */
+
+(async function(){
+  await backend.load();
+  const sid=localStorage.getItem("socialx_session");
+  if(sid){
+    const u=state.users.find(x=>x.id===sid);
+    if(u){state.user=u;await enterApp();}
+  }
+})();
+</script>
+</body>
+</html>
